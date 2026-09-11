@@ -1,0 +1,105 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Useless Calc — Because normal units are boring.</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="logo-block">
+        <span class="logo-icon">📐</span>
+        <div>
+          <h1 class="site-title">USELESS CALC</h1>
+          <p class="site-sub">Because normal units are boring.</p>
+        </div>
+      </div>
+      <p class="header-note">100% mathematically accurate. 0% useful.</p>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main class="main-wrap">
+
+    <!-- Step 1: Type selector -->
+    <section class="card type-card">
+      <p class="card-label">STEP 1</p>
+      <h2 class="card-title">What are we measuring?</h2>
+      <p class="card-hint">Select your completely necessary measurement type.</p>
+
+      <div class="type-grid" id="typeGrid">
+        <button class="type-btn active" data-type="length">
+          <span class="type-emoji">📏</span>
+          <span>Length</span>
+        </button>
+        <button class="type-btn" data-type="height">
+          <span class="type-emoji">🧍</span>
+          <span>Height</span>
+        </button>
+        <button class="type-btn" data-type="area">
+          <span class="type-emoji">🟦</span>
+          <span>Area</span>
+        </button>
+        <button class="type-btn" data-type="volume">
+          <span class="type-emoji">📦</span>
+          <span>Volume</span>
+        </button>
+        <button class="type-btn" data-type="weight">
+          <span class="type-emoji">⚖️</span>
+          <span>Weight</span>
+        </button>
+        <button class="type-btn" data-type="capacity">
+          <span class="type-emoji">🪣</span>
+          <span>Capacity</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Step 2: Inputs -->
+    <section class="card input-card">
+      <p class="card-label">STEP 2</p>
+      <h2 class="card-title">Enter numbers.</h2>
+      <p class="card-hint">We promise to judge them.</p>
+
+      <div class="inputs-area" id="inputsArea"></div>
+
+      <p class="error-msg" id="errorMsg" aria-live="polite"></p>
+
+      <button class="calc-btn" id="calcBtn">
+        <span class="calc-btn-text">Calculate Something Useless</span>
+        <span class="calc-btn-icon">→</span>
+      </button>
+    </section>
+
+    <!-- Step 3: Result -->
+    <section class="card result-card hidden" id="resultCard">
+      <p class="card-label">STEP 3</p>
+      <h2 class="card-title">The Verdict</h2>
+
+      <div class="result-normal" id="resultNormal"></div>
+
+      <div class="result-funny-wrap">
+        <div class="result-funny" id="resultFunny"></div>
+        <p class="result-tagline" id="resultTagline"></p>
+      </div>
+
+      <div class="result-footer">
+        <p class="result-note">Why did we calculate this? Nobody knows.</p>
+        <button class="recalc-btn" id="recalcBtn">Try a different comparison 🎲</button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <p>Made with questionable priorities &middot; <span class="footer-accent">Useless Calc</span> &middot; A college mini-project</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
