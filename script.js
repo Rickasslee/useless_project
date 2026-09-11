@@ -423,6 +423,7 @@ function displayFunny(baseValue, comp) {
   resultFunny.innerHTML =
     `${comp.emoji} That's approximately <span class="funny-number">${formatted}</span> <span class="funny-unit">${comp.plural}</span>.`;
   resultTagline.textContent = comp.tagline;
+  renderAnimation(currentType, count, comp.emoji);
 }
 
 function hideResult() {
@@ -503,4 +504,169 @@ document.addEventListener("keydown", (e) => {
     calcBtn.click();
   }
 });
+
+
+
+
+// ================================================================
+//  ANIMATION ENGINE
+//  Renders a proportional emoji grid/stack/pile per measurement type.
+//  MAX = 50 slots. count >= 50 -> all filled ("overflow").
+//  count < 50  -> round(count) filled, rest shown as ghost slots.
+// ================================================================
+
+const ANIM_MAX     = 50;
+const ANIM_STAGGER = 28; // ms between each emoji popping in
+
+function renderAnimation(type, count, emoji) {
+  var section   = document.getElementById("animSection");
+  var container = document.getElementById("animContainer");
+  var label     = document.getElementById("animCountLabel");
+  if (!section || !container || !label) return;
+
+  // Wipe previous render
+  container.innerHTML = "";
+  container.className = "anim-container";
+
+  var filled   = count >= ANIM_MAX ? ANIM_MAX : Math.max(1, Math.round(count));
+  var empty    = ANIM_MAX - filled;
+  var overflow = count > ANIM_MAX;
+
+  // Label copy
+  if (overflow) {
+    label.textContent = "All 50 slots packed — " + formatCount(count - ANIM_MAX) + " more couldn't squeeze in \uD83D\uDE35";
+  } else if (filled <= 2) {
+    label.textContent = "Just " + filled + ". That's barely anything. \uD83D\uDE14";
+  } else {
+    label.textContent = filled + " of 50 slots filled";
+  }
+
+  container.classList.add("anim-" + type);
+
+  // Volume + Capacity: completely different falling-into-box animation
+  if (type === "volume" || type === "capacity") {
+    var MAX_FALL  = 20;
+    var showCount = Math.min(Math.max(1, Math.round(count)), MAX_FALL);
+    label.textContent = "Dropping " + showCount + " in \u2014 " + formatCount(count) + " total";
+    buildFallingBox(container, showCount, emoji, type);
+    return;
+  }
+
+  switch (type) {
+    case "length": buildLength(container, filled, empty, emoji); break;
+    case "height": buildHeight(container, filled, empty, emoji); break;
+    case "area":   buildArea(container, filled, empty, emoji);   break;
+    case "weight": buildWeight(container, filled, emoji);        break;
+  }
+}
+
+// ── LENGTH: fills left to right in rows ─────────────────────────
+function buildLength(c, filled, empty, emoji) {
+  for (var i = 0; i < filled; i++) c.appendChild(makeUnit(emoji, i, "pop-in"));
+  for (var i = 0; i < empty;  i++) c.appendChild(makeGhost(emoji));
+}
+
+// ── HEIGHT: stacks upward (column-reverse flex) ──────────────────
+// With flex-direction:column-reverse, DOM-first child = visually bottom.
+// We want filled at bottom, empty at top -> render filled first.
+function buildHeight(c, filled, empty, emoji) {
+  for (var i = 0; i < filled; i++) c.appendChild(makeUnit(emoji, i, "rise-in"));
+  for (var i = 0; i < empty;  i++) c.appendChild(makeGhost(emoji));
+}
+
+// ── AREA: 2D tile grid ───────────────────────────────────────────
+function buildArea(c, filled, empty, emoji) {
+  for (var i = 0; i < filled; i++) c.appendChild(makeUnit(emoji, i, "pop-in"));
+  for (var i = 0; i < empty;  i++) c.appendChild(makeGhost(emoji));
+}
+
+// buildVolume: replaced by buildFallingBox — kept as stub to avoid errors
+function buildVolume(c, filled, empty, emoji) { /* unused */ }
+
+// ── WEIGHT: emojis fall from top and pile at the bottom ──────────
+// No ghost slots — the empty vertical space IS the visual.
+function buildWeight(c, filled, emoji) {
+  for (var i = 0; i < filled; i++) {
+    var el  = makeUnit(emoji, i, "fall-in");
+    var rot = ((Math.random() * 44) - 22).toFixed(1);
+    el.style.setProperty("--rot", rot + "deg");
+    // Also stagger weight a bit more slowly so the fall reads clearly
+    el.style.animationDelay = (i * 48) + "ms";
+    c.appendChild(el);
+  }
+}
+
+// buildCapacity: replaced by buildFallingBox — kept as stub to avoid errors
+function buildCapacity(c, filled, empty, emoji) { /* unused */ }
+
+// ── DOM helpers ──────────────────────────────────────────────────
+function makeUnit(emoji, index, animClass) {
+  var el = document.createElement("span");
+  el.className = "emoji-unit " + animClass;
+  el.textContent = emoji;
+  el.style.animationDelay = (index * ANIM_STAGGER) + "ms";
+  return el;
+}
+
+function makeGhost(emoji) {
+  var el = document.createElement("span");
+  el.className = "emoji-empty";
+  el.textContent = emoji;
+  return el;
+}
+
+
+
+// ================================================================
+//  FALLING-INTO-BOX ANIMATION (Volume + Capacity)
+//  A large container emoji sits at the bottom.
+//  The comparison emojis rain in from the top and vanish into it.
+// ================================================================
+
+function buildFallingBox(container, count, emoji, type) {
+  // Pick the right container emoji
+  var boxEmoji = (type === "capacity") ? "\uD83E\uDEA3" : "\uD83D\uDCE6";
+  // 🪣 for capacity, 📦 for volume
+
+  // Outer zone: positions everything
+  var zone = document.createElement("div");
+  zone.className = "box-drop-zone";
+
+  // Layer 1: falling emoji sprites
+  var rain = document.createElement("div");
+  rain.className = "box-rain";
+
+  for (var i = 0; i < count; i++) {
+    var el = document.createElement("span");
+    el.className = "box-fall-item";
+    el.textContent = emoji;
+
+    // All items spawn right above the box center
+    // Small horizontal wobble (+-15px) keeps it from looking robotic
+    var wobble = (Math.random() * 30 - 15).toFixed(1);
+    // Gentle random start rotation
+    var rot    = ((Math.random() * 40) - 20).toFixed(1);
+    // Stagger delay: each item waits a bit longer than the previous
+    var delay  = (i * 240 + Math.floor(Math.random() * 60));
+    // Slightly varying fall speed
+    var dur    = (520 + Math.floor(Math.random() * 200));
+
+    el.style.left = "50%";                         // always centered
+    el.style.setProperty("--wobble", wobble + "px");
+    el.style.setProperty("--rot", rot + "deg");
+    el.style.animationDelay    = delay + "ms";
+    el.style.animationDuration = dur + "ms";
+
+    rain.appendChild(el);
+  }
+
+  // Layer 2: the container emoji (sits on top so items disappear behind/inside it)
+  var boxEl = document.createElement("div");
+  boxEl.className = "box-container-emoji";
+  boxEl.textContent = boxEmoji;
+
+  zone.appendChild(rain);
+  zone.appendChild(boxEl);
+  container.appendChild(zone);
+}
 
