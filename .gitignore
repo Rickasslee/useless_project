@@ -2,3 +2,6 @@ venv/
 __pycache__/
 node_modules/
 .env
+
+# Demo video (too large for GitHub — upload as Release asset or to YouTube)
+*.mp4
