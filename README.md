@@ -117,7 +117,7 @@ Not applicable.
 
 **Video**
 
-> 📹 **Demo video:** Upload `3minvid.mp4` to YouTube or Google Drive, then paste the link here.
+> 📹 **Demo video:** https://drive.google.com/file/d/1N2XyuVIkdmFQc9GehWvtHJUVNDw9uU-N/view?usp=sharing
 
 *The 3-minute video walks through all six measurement categories (Length, Height, Area, Volume, Weight, Capacity), demonstrates correct unit conversion, funny comparison output, and all emoji animations.*
 
